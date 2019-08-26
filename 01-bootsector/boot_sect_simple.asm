@@ -57,7 +57,7 @@ int 0x10
 ; every time we change the code
 mov al, "4"
 int 0x10
-mov al, [0x7c2d]
+mov al, [0x7c4f]
 int 0x10
 
 jmp $ ; jump to current address = infinite loop
