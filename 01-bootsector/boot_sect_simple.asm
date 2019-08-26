@@ -1,3 +1,5 @@
+[org 0x7c00]
+
 ; ax = ah + al
 mov ah, 0x0e ; tty mode
 mov al, 'H'
@@ -23,38 +25,33 @@ int 0x10
 ; memory exercise
 mov ah, 0x0e 
 ; attempt 1
-; Fails because it tries to print the memory address (i.e. pointer)
-; not its actual contents
+; Will fail again regardless of 'org' because we are still addressing the pointer
+; and not the data it points to
 mov al, "1"
 int 0x10
 mov al, the_secret
 int 0x10
 
 ; attempt 2
-; It tries to print the memory address of 'the_secret' which is the correct approach.
-; However, BIOS places our bootsector binary at address 0x7c00
-; so we need to add that padding beforehand. We'll do that in attempt 3
+; Having solved the memory offset problem with 'org', this is now the correct answer
 mov al, "2"
 int 0x10
 mov al, [the_secret]
 int 0x10
 
 ; attempt 3
-; Add the BIOS starting offset 0x7c00 to the memory address of the X
-; and then dereference the contents of that pointer.
-; We need the help of a different register 'bx' because 'mov al, [ax]' is illegal.
-; A register can't be used as source and destination for the same command.
+; As you expected, we are adding 0x7c00 twice, so this is not going to work
 mov al, "3"
 int 0x10
 mov bx, the_secret
 add bx, 0x7c00
-mov al, [bx] 
+mov al, [bx]
 int 0x10
 
 ; attempt 4
-; We try a shortcut since we know that the X is stored at byte 0x2d in our binary
-; That's smart but ineffective, we don't want to be recounting label offsets
-; every time we change the code
+; This still works because there are no memory references to pointers, so
+; the 'org' mode never applies. Directly addressing memory by counting bytes
+; is always going to work, but it's inconvenient
 mov al, "4"
 int 0x10
 mov al, [0x7c4f]
