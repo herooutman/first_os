@@ -1,4 +1,6 @@
-[org 0x7c00]
+; used in memory exercise
+; [org 0x7c00]
+
 ; print exercise
 ; ax = ah + al
 mov ah, 0x0e ; tty mode
@@ -107,7 +109,49 @@ pop bx
 mov al, bl
 int 0x10 ; prints A
 
+; move cursor to the head of the row
+mov bx, 0
+mov al, 10
+int 0x10
+mov ah, 0x03
+int 0x10
+mov ah, 0x02
+mov dl, 0
+int 0x10
 ; end of stack exercise
+
+
+
+; segmentation exercise
+mov ah, 0x0e ; tty
+
+mov al, [the_secret]
+int 0x10 ; we already saw this doesn't work, right?
+
+mov bx, 0x7c0 ; remember, the segment is automatically <<4 for you
+mov ds, bx
+; WARNING: from now on all memory references will be offset by 'ds' implicitly
+mov al, [the_secret]
+int 0x10
+
+mov al, [es:the_secret]
+int 0x10 ; doesn't look right... isn't 'es' currently 0x000?
+
+mov bx, 0x7c0
+mov es, bx
+mov al, [es:the_secret]
+int 0x10
+
+; move cursor to the head of the row
+mov ax, 0x0e0a
+int 0x10
+mov bx, 0
+mov ah, 0x03
+int 0x10
+mov ah, 0x02
+mov dl, 0
+int 0x10
+; end of segmentation exercise
 
 
 jmp $ ; jump to current address = infinite loop
