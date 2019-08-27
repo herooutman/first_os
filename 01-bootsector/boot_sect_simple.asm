@@ -1,5 +1,5 @@
 [org 0x7c00]
-
+; print exercise
 ; ax = ah + al
 mov ah, 0x0e ; tty mode
 mov al, 'H'
@@ -12,15 +12,16 @@ int 0x10
 int 0x10 ; 'l' is still on al, remember?
 mov al, 'o'
 int 0x10
-mov al, 10
-int 0x10
 
 ; move cursor to the head of the row
+mov al, 10
+int 0x10
 mov ah, 0x03
 int 0x10
 mov ah, 0x02
 mov dl, 0
 int 0x10
+; end of print exercise
 
 ; memory exercise
 mov ah, 0x0e 
@@ -56,6 +57,58 @@ mov al, "4"
 int 0x10
 mov al, [0x7c4f]
 int 0x10
+
+; move cursor to the head of the row
+mov bx, 0
+mov al, 10
+int 0x10
+mov ah, 0x03
+int 0x10
+mov ah, 0x02
+mov dl, 0
+int 0x10
+; end of memory exercise
+
+
+
+; stack exercise
+; Remember that the bp register stores the base address (i.e. bottom) of the stack, and sp stores the top, and that the stack grows downwards from bp (i.e. sp gets decremented)
+mov ah, 0x0e ; tty mode
+
+mov bp, 0x8000 ; this is an address far away from 0x7c00 so that we don't get overwritten
+mov sp, bp ; if the stack is empty then sp points to bp
+
+push 'A' ; push to stack
+push 'B'
+push 'C'
+
+; to show how the stack grows downwards
+mov al, [0x7ffe] ; 0x8000 - 2
+int 0x10
+
+; however, don't try to access the bottom of stack [0x8000], because it won't work
+; but you can access 0x7ffe, 0x7ffc, and 0x7ffa
+mov al, [0x8000]
+int 0x10
+
+
+; recover our characters using the standard procedure: 'pop'
+; We can only pop full words so we need an auxiliary register to manipulate
+; the lower byte
+pop bx
+mov al, bl
+int 0x10 ; prints C
+
+pop bx
+mov al, bl
+int 0x10 ; prints B
+
+pop bx
+mov al, bl
+int 0x10 ; prints A
+
+; end of stack exercise
+
 
 jmp $ ; jump to current address = infinite loop
 
