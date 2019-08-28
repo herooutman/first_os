@@ -1,5 +1,5 @@
 ; used in memory exercise
-; [org 0x7c00]
+[org 0x7c00]
 
 ; print exercise
 ; ax = ah + al
@@ -121,6 +121,23 @@ int 0x10
 ; end of stack exercise
 
 
+; functions exercise
+; The main routine makes sure the parameters are ready and then calls the function
+mov bx, HELLO
+call print
+
+call print_nl
+
+mov bx, GOODBYE
+call print
+
+call print_nl
+
+mov dx, 0x12fe
+call print_hex
+call print_nl
+
+
 
 ; segmentation exercise
 mov ah, 0x0e ; tty
@@ -156,10 +173,23 @@ int 0x10
 
 jmp $ ; jump to current address = infinite loop
 
+; remember to include subroutines below the hang
+%include "boot_sect_print.asm"
+%include "boot_sect_print_hex.asm"
+
+; data
 the_secret:
     ; ASCII code 0x58 ('X') is stored just before the zero-padding.
     ; On this code that is at byte 0x2d (check it out using 'xxd file.bin')
     db "X"
+
+HELLO:
+    db 'Hello, World', 0
+
+GOODBYE:
+    db 'Goodbye', 0
+; end of functions exercise
+
 
 ; Pad with zeros till address 510
 ; times: operates on a number, loop for the number of times
